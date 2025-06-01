@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What People Are Saying</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Inline additional styles if needed */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e6f7ff;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 2.8em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .feedback-list {
+      width: 80%;
+      max-width: 800px;
+      list-style: none;
+      padding: 0;
+    }
+    .feedback-item {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      margin-bottom: 20px;
+      padding: 25px;
+      border-left: 8px solid #3498db;
+      transition: transform 0.2s ease-in-out;
+    }
+    .feedback-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    .feedback-author {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+    .feedback-message {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    .feedback-meta {
+      font-size: 0.9em;
+      color: #777;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .feedback-details {
+      font-size: 0.95em;
+      color: #444;
+      margin-bottom: 5px;
+    }
+    .no-feedback {
+      color: #777;
+      font-size: 1.1em;
+    }
+    p a {
+      color: #3498db;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    p a:hover {
+      color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Voices of Our Users</h1>
+  <ul class="feedback-list" id="feedbackList">
+    <li class="no-feedback">Loading feedback...</li>
+  </ul>
+  <p><a href="index.html">Share Your Own Feedback</a></p>
+
+  <script>
+    const feedbackList = document.getElementById('feedbackList');
+
+    function loadFeedback() {
+      fetch('api/get_feedback.php')
+        .then(response => response.json())
+        .then(data => {
+          feedbackList.innerHTML = '';
+
+          if (data && data.length > 0) {
+            data.forEach(feedback => {
+              const listItem = document.createElement('li');
+              listItem.className = 'feedback-item';
+              listItem.innerHTML = `
+                <p class="feedback-author">${feedback.name}${feedback.email ? ` <small>(${feedback.email})</small>` : ''}</p>
+                <p class="feedback-message">${feedback.message}</p>
+                <p class="feedback-meta">Received on ${new Date(feedback.created_at).toLocaleString()}</p>
+                ${feedback.rating ? `<p class="feedback-details">Rating: ${feedback.rating}/5</p>` : ''}
+                ${feedback.feedback_type ? `<p class="feedback-details">Type: ${feedback.feedback_type}</p>` : ''}
+                ${feedback.product_used ? `<p class="feedback-details">Product/Service: ${feedback.product_used}</p>` : ''}
+                ${feedback.visit_date ? `<p class="feedback-details">Date: ${new Date(feedback.visit_date).toLocaleDateString()}</p>` : ''}
+                ${feedback.recommendation !== null ? `<p class="feedback-details">Recommendation: ${feedback.recommendation ? 'Yes' : 'No'}</p>` : ''}
+                ${feedback.comments ? `<p class="feedback-details">Comments: ${feedback.comments}</p>` : ''}
+              `;
+              feedbackList.appendChild(listItem);
+            });
+          } else {
+            const noFeedbackItem = document.createElement('li');
+            noFeedbackItem.className = 'no-feedback';
+            noFeedbackItem.textContent = 'No feedback received yet. Be the first!';
+            feedbackList.appendChild(noFeedbackItem);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching feedback:', error);
+          feedbackList.innerHTML = '<li class="no-feedback error">Failed to load feedback. Please try again later.</li>';
+        });
+    }
+
+    loadFeedback();
+  </script>
+</body>
+</html>
